@@ -1,0 +1,169 @@
+let TAB = "  ";
+let op = {
+    '"': '"',
+    '[': ']',
+    '{': '}'
+}
+let stack = []
+@string::slice = (self, start: @number, e: @number) {
+    let tmp = ""
+    let end = e
+    if (end < 0) {
+        end = self.length - end
+    }
+    for i in 0..self.length {
+        if (i >= start - 1 && i <= end - 1) {
+            tmp += self[i]
+        }
+    }
+    return tmp
+}
+@array::last = (self) {
+    if (self.length == 0) {return null}
+    return self.reverse()[0]
+}
+type @JSON
+impl @JSON {
+    stringify: (val: @string | @bool | @array | @dictionary | @number | @NULL, tabs: @number = 0, last:@bool=false, tabN:@number= 0) {
+        if (val is @string) {
+            return (TAB * tabs) + "\"{}\"".fmt(val)
+        } else if (val is @number) {
+            return (TAB * tabs) + "{}".fmt(val)
+        } else if (val is @NULL) {
+            return (TAB * tabs) + "{}".fmt("null")
+        } else if (val is @bool) {
+            return (TAB * tabs) + "{}".fmt(val)
+        } else if (val is @array) {
+             let temp = (TAB * tabs) + "[\n"
+             let tabCount = tabs
+             if (tabCount < tabN) {
+                 tabCount = tabN
+             }
+             for i in 0..val.length {
+                if (i == val.length - 1) {
+                    temp += @JSON::stringify(val[i], tabCount + 2, i == val.length - 1) + "\n"
+                } else {
+                    temp += @JSON::stringify(val[i], tabCount + 2, i == val.length - 1) + ",\n"
+                }
+             }
+             if (tabs < tabN) {
+                temp += (TAB * (tabCount + 1)) + "]"
+             } else {
+                temp += (TAB * tabCount) + "]"
+             }
+             return temp
+        } else if (val is @dictionary) {
+            let temp = (TAB * tabs) + "{\n"
+            let keys = val.keys()
+            let values = val.values()
+            let tabCount = tabs
+            if (tabCount < tabN) {
+                tabCount = tabN
+            }
+            for i in 0..values.length {
+                let val = values[i]
+                let key = keys[i]
+                if (i == values.length - 1) {
+                    temp += (TAB * (tabCount + 1)) + "\"{}\": ".fmt(key) + @JSON::stringify(val, 0, i == values.length - 1, tabs + 1) + "\n"  
+                } else {
+                    temp += (TAB * (tabCount + 1)) + "\"{}\": ".fmt(key) + @JSON::stringify(val, 0, i == values.length - 1, tabs + 1) + ",\n"
+                }
+            }
+            temp += (TAB * tabCount) + "}"
+            return temp
+        }
+    },
+    parse: (str: @string) {
+        let string = str
+        string = string.trim(tokens = [' ', ','])
+        if (string.length == 0) {return ""}
+        if (string[0] == "\"") {
+            return string.substr(1, string.length - 1)
+        } else if (string[0] == "[") {
+            return @JSON::parseArray(string)
+        } else if (string[0] == "{") {
+            return @JSON::parseObject(string)
+        }
+        string = @regex::new("\\ ").replace(string, "")
+        string = @regex::new("\\,").replace(string, "")
+        if (string[0] == "t") {
+            return true
+        } else if (string[0] == "f") {
+            return false
+        } else if (string[0] == "u" || string[0] == "n") {
+            return null
+        } else if (string.is_digit() || string as @number != null) {
+            return string as @number
+        } else {
+            return ""
+        }
+    },
+    parseArray: (str: @string) {
+        let lastComma = 0
+        let output = []
+        if (str.length < 3) {return output}
+        let string = str.slice(2, str.length - 1)
+        for i in 0..string.length {
+            let char = string[i]
+            if (stack.last() == "\\") {
+                stack.pop()
+                continue
+            } else if (char == "\\") {
+                stack.push("\\")
+            }
+            
+            if (stack.last() == char && (char == "\"" || stack.last() != "\"")) {
+                stack.pop()
+            } else if (char in op.keys() && stack.last() != "\"") {
+                stack.push(op[char])
+            }
+            
+            if (stack.length == 0 && (char == "," || i == string.length - 1)) {
+                output.push(@JSON::parse(string.slice(lastComma, i + 1)))
+                lastComma = i + 1
+            }
+        }
+        return output
+    },
+    parseObject: (str: @string) {
+        let start = 0
+        let output = {}
+        if (str.length < 3) {return output}
+        let string = str.trim(tokens=[" ", "{", "}"])
+        let key = []
+        let val = []
+        for i in 0..string.length {
+            let char = string[i]
+            if (stack.last() == "\\") {
+                stack.pop()
+                continue
+            } else if (char == "\\") {
+                stack.push("\\")
+            }
+    
+            if (stack.last() == char && (char == "\"" || stack.last() != "\"")) {
+                stack.pop()
+            } else if (char in op.keys() && stack.last() != "\"") {
+                stack.push(op[char])
+            }
+
+            if (stack.length == 0) {
+                if (char == ":") {
+                    if (key.length > 0) {
+                        key.pop()
+                    }
+                    key.push(@JSON::parse(string.slice(start, i)))
+                    start = i + 2
+                } else if (char == "," || i == string.length - 1 ) {
+                    if (val.length > 0) {
+                        val.pop()
+                    }
+                    val.push(@JSON::parse(string.slice(start, i + 1)))
+                    start = i + 1
+                    output.set(key.last(), val.last())
+                }
+            }
+        }
+        return output
+    }
+}
