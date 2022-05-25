@@ -1,3 +1,4 @@
+
 let TAB = "  ";
 let op = {
     '"': '"',
@@ -92,7 +93,7 @@ impl @JSON {
             return false
         } else if (string[0] == "u" || string[0] == "n") {
             return null
-        } else if (string.is_digit() || string as @number != null) {
+        } else if (string.is_digit()) {
             return string as @number
         } else {
             return ""

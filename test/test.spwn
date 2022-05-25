@@ -1,4 +1,7 @@
-import './lib/.'
+#[no_level]
+
+
+import '../src/.'
 
 let s = "{\"fort\":{\"bow\":\"memory\",\"heard\":{\"possibly\":\"water\",\"personal\":-1219818637,\"headed\":\"while\",\"chemical\":\"equally\",\"lucky\":-1357673812.9458966,\"build\":false},\"around\":1529914535.0482788,\"truck\":-98813811,\"dark\":-1988095797.8920789,\"list\":\"active\"},\"special\":true,\"alone\":\"farm\",\"suddenly\":-136382864.6512127,\"cow\":\"bit\",\"palace\":true}"
 $.print(@JSON::parse(s))
@@ -10,7 +13,7 @@ let o = {
         array: [
             1, 
             5,
-            2.9,
+            2.9, 
             3.14159,
             false,
             null,
