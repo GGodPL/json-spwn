@@ -3,10 +3,10 @@
 
 import '../src/.'
 
-let s = "{\"fort\":{\"bow\":\"memory\",\"heard\":{\"possibly\":\"water\",\"personal\":-1219818637,\"headed\":\"while\",\"chemical\":\"equally\",\"lucky\":-1357673812.9458966,\"build\":false},\"around\":1529914535.0482788,\"truck\":-98813811,\"dark\":-1988095797.8920789,\"list\":\"active\"},\"special\":true,\"alone\":\"farm\",\"suddenly\":-136382864.6512127,\"cow\":\"bit\",\"palace\":true}"
-$.print(@JSON::parse(s))
+let string = "{\"fort\":{\"bow\":\"memory\",\"heard\":{\"possibly\":\"water\",\"personal\":-1219818637,\"headed\":\"while\",\"chemical\":\"equally\",\"lucky\":-1357673812.9458966,\"build\":false},\"around\":1529914535.0482788,\"truck\":-98813811,\"dark\":-1988095797.8920789,\"list\":\"active\"},\"special\":true,\"alone\":\"farm\",\"suddenly\":-136382864.6512127,\"cow\":\"bit\",\"palace\":true}"
+$.print(@JSON::parse(string))
 
-let o = {
+let object = {
     test: false,
     epic: "object",
     woah: {
@@ -24,9 +24,9 @@ let o = {
     },
     idunno: false
 }
-$.print(@JSON::stringify(o))
+$.print(@JSON::stringify(object))
 
-let ar = [
+let array = [
     "text",
     false,
     true,
@@ -36,4 +36,4 @@ let ar = [
     -1
 ]
 
-$.print(@JSON::stringify(ar))
+$.print(@JSON::stringify(array))

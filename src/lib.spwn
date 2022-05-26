@@ -1,11 +1,12 @@
-
-let TAB = "  ";
-let op = {
+TAB = "  ";
+op = {
     '"': '"',
     '[': ']',
     '{': '}'
 }
+DIGITS = "0123456789"
 let stack = []
+
 @string::slice = (self, start: @number, e: @number) {
     let tmp = ""
     let end = e
@@ -22,6 +23,26 @@ let stack = []
 @array::last = (self) {
     if (self.length == 0) {return null}
     return self.reverse()[0]
+}
+@string::isNumber = (self) {
+    let decPoint = -1
+    let startPos = 0
+    if (self[0] == "-") {
+        startPos = 1
+    }
+    for i in startPos..self.length {
+        let char = self[i]
+        if (char == ".") {
+            if (decPoint > -1) {
+                return false
+            } else {
+                decPoint = i
+            }
+        } else if (!(char in DIGITS)) {
+            return false
+        }
+    }
+    return true
 }
 type @JSON
 impl @JSON {
@@ -93,7 +114,7 @@ impl @JSON {
             return false
         } else if (string[0] == "u" || string[0] == "n") {
             return null
-        } else if (string.is_digit()) {
+        } else if (string.isNumber()) {
             return string as @number
         } else {
             return ""
